@@ -45,6 +45,46 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ ; \
       tar -zxf "${COMPONENT}.tar.gz" -C /opt/bitnami --strip-components=2 --no-same-owner --wildcards '*/files' ; \
       rm -rf "${COMPONENT}".tar.gz{,.sha256} ; \
     done
+
+COPY wooiomad_1.2.7.zip /tmp/bitnami/pkg/cache/
+RUN REMOVE_PLUGINS=( \
+      "hello.php" \
+      "wp-mail-smtp" \
+    ) ; \
+    for REMOVE_PLUGIN in "${REMOVE_PLUGINS[@]}"; do \
+      rm -fr /opt/bitnami/wordpress/wp-content/plugins/${REMOVE_PLUGIN}; \
+    done; \
+    REMOVE_THEMES=( \
+      "twentytwentytwo" \
+      "twentytwentythree" \
+    ) ; \
+    for REMOVE_THEME in "${REMOVE_THEMES[@]}"; do \
+      rm -fr /opt/bitnami/wordpress/wp-content/themes/${REMOVE_THEME}; \
+    done; \
+    install_packages unzip; \
+    cd /tmp/bitnami/pkg/cache/; \
+    COPY_PLUGINS=( \
+      "wooiomad_1.2.7" \
+    ) ; \
+    for COPY_PLUGIN in "${COPY_PLUGINS[@]}"; do \
+      unzip "${COPY_PLUGIN}.zip" > /dev/null; \
+      rm -rf "${COPY_PLUGIN}.zip"; \
+      SOURCE_FOLDER=$(echo ${COPY_PLUGIN} | sed --regexp-extended 's/([-a-z]+).*/\1/'); \
+      mv $SOURCE_FOLDER /opt/bitnami/wordpress/wp-content/plugins/; \
+    done; \
+    DOWNLOAD_PLUGINS=( \
+      "fluent-smtp.2.2.81" \
+      "groups.3.2.1" \
+      "miniorange-login-with-eve-online-google-facebook.6.26.1" \
+      "woocommerce.9.4.1" \
+    ) ; \
+    for DOWNLOAD_PLUGIN in "${DOWNLOAD_PLUGINS[@]}"; do \
+      curl -SsLf "https://downloads.wordpress.org/plugin/${DOWNLOAD_PLUGIN}.zip" -O ; \
+      unzip "${DOWNLOAD_PLUGIN}.zip" > /dev/null; \
+      rm -rf "${DOWNLOAD_PLUGIN}.zip"; \
+      SOURCE_FOLDER=$(echo ${DOWNLOAD_PLUGIN} | sed --regexp-extended 's/([-a-z]+).*/\1/'); \
+      mv $SOURCE_FOLDER /opt/bitnami/wordpress/wp-content/plugins/; \
+    done
 RUN apt-get autoremove --purge -y curl && \
     apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
