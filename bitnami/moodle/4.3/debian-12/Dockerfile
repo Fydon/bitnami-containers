@@ -78,6 +78,11 @@ ENV APACHE_HTTPS_PORT_NUMBER="" \
     LANGUAGE="en_US:en" \
     PATH="/opt/bitnami/common/bin:/opt/bitnami/php/bin:/opt/bitnami/php/sbin:/opt/bitnami/apache/bin:/opt/bitnami/postgresql/bin:/opt/bitnami/mysql/bin:$PATH"
 
+COPY --chmod=644 root.crt /usr/local/share/ca-certificates/root.crt
+RUN update-ca-certificates; \
+    sed --in-place --regexp-extended 's/^(;openssl.cafile=)/\1\nopenssl.cafile=\/etc\/ssl\/certs\/ca-certificates.crt/ ; \
+    s/^(;openssl.capath=)/\1\nopenssl.capath=\/etc\/ssl\/certs/' /opt/bitnami/php/etc/php.ini
+
 EXPOSE 8080 8443
 
 ENTRYPOINT [ "/opt/bitnami/scripts/moodle/entrypoint.sh" ]
