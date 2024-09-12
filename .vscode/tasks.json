@@ -1,0 +1,54 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docker build",
+      "type": "shell",
+      "command": "docker buildx build --load --tag ${input:namespace}/${input:containerName}:${input:containerTag} .",
+      "options": {
+        "cwd": "${workspaceFolder}/bitnami/${input:containerFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker build (no cache)",
+      "type": "shell",
+      "command": "docker buildx build --load --no-cache --tag ${input:namespace}/${input:containerName}:${input:containerTag} .",
+      "options": {
+        "cwd": "${workspaceFolder}/bitnami/${input:containerFolder}"
+      },
+      "problemMatcher": []
+    },
+  ],
+  "inputs": [
+    {
+      "id": "containerFolder",
+      "description": "The folder of the container Dockerfile",
+      "options": [
+        "moodle/4.3/debian-12",
+      ],
+      "type": "pickString"
+    },
+    {
+      "id": "containerName",
+      "description": "The name of the container",
+      "options": [
+        "moodle",
+      ],
+      "type": "pickString"
+    },
+    {
+      "id": "containerTag",
+      "description": "The tag that will be used on Amazon ECR",
+      "default": "latest",
+      "type": "promptString"
+    },
+    {
+      "id": "namespace",
+      "description": "Namespace of the container",
+      "type": "promptString"
+    }
+  ]
+}

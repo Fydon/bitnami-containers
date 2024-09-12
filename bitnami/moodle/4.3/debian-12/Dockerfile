@@ -36,7 +36,7 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ ; \
       "postgresql-client-13.17.0-0-linux-${OS_ARCH}-debian-12" \
       "mysql-client-11.4.4-0-linux-${OS_ARCH}-debian-12" \
       "libphp-8.1.30-2-linux-${OS_ARCH}-debian-12" \
-      "moodle-4.3.8-1-linux-${OS_ARCH}-debian-12" \
+      #"moodle-4.3.8-1-linux-${OS_ARCH}-debian-12" \
     ) ; \
     for COMPONENT in "${COMPONENTS[@]}"; do \
       if [ ! -f "${COMPONENT}.tar.gz" ]; then \
@@ -47,6 +47,11 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ ; cd /tmp/bitnami/pkg/cache/ ; \
       tar -zxf "${COMPONENT}.tar.gz" -C /opt/bitnami --strip-components=2 --no-same-owner --wildcards '*/files' ; \
       rm -rf "${COMPONENT}".tar.gz{,.sha256} ; \
     done
+RUN cd /tmp/bitnami/pkg/cache/ ; \
+    curl -SsLf https://github.com/iomad/iomad/archive/refs/tags/IOMAD_403_3.tar.gz -O ; \
+    mkdir -p /opt/bitnami/moodle/ ; \
+    tar -zxf IOMAD_403_3.tar.gz -C /opt/bitnami/moodle/ --strip-components=1 --no-same-owner 'iomad-IOMAD_403_3' ; \
+    rm -rf IOMAD_403_3.tar.gz
 RUN apt-get autoremove --purge -y curl && \
     apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
